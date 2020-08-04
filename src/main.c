@@ -3,6 +3,7 @@
 typedef struct {
     GtkWidget *w_txtvw_main;            // Pointer to text view object
     GtkWidget *w_dlg_file_choose;       // Pointer to file chooser dialog box
+    GtkWidget *w_dlg_preferences;       // Pointer to file chooser dialog box
     GtkTextBuffer *textbuffer_main;     // Pointer to text buffer
     GtkWidget *w_dlg_about;             // Pointer to about dialog box
 } app_widgets;
@@ -22,6 +23,7 @@ int main(int argc, char *argv[])
     widgets->w_dlg_file_choose = GTK_WIDGET(gtk_builder_get_object(builder, "dlg_file_choose"));
     widgets->textbuffer_main = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "textbuffer_main"));
     widgets->w_dlg_about = GTK_WIDGET(gtk_builder_get_object(builder, "dlg_about"));
+    widgets->w_dlg_preferences = GTK_WIDGET(gtk_builder_get_object(builder, "dlg_preferences"));
     
     gtk_builder_connect_signals(builder, widgets);
 
@@ -81,6 +83,17 @@ void on_menuitem_quit_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 void on_menuitem_about_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 {
     gtk_widget_show(app_wdgts->w_dlg_about);
+}
+
+// Edit --> Preferences
+void on_menuitem_preferences_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
+{
+    gtk_widget_show(app_wdgts->w_dlg_preferences);
+    if(gtk_dialog_run(GTK_DIALOG (app_wdgts->w_dlg_preferences)) == GTK_RESPONSE_OK){
+      g_print("OK!");
+    }
+
+    gtk_widget_hide(app_wdgts->w_dlg_preferences);
 }
 
 // About dialog box Close button
