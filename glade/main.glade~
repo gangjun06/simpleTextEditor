@@ -176,12 +176,11 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkImageMenuItem">
-                        <property name="label">gtk-about</property>
+                      <object class="GtkImageMenuItem" id="menuitem_about">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_menuitem_about_activate" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -250,6 +249,47 @@
             <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
+        </child>
+      </object>
+    </child>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+  </object>
+  <object class="GtkAboutDialog" id="dlg_about">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">About Simple Text Editor</property>
+    <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
+    <property name="transient_for">window_main</property>
+    <property name="program_name">Simple Text Editor</property>
+    <property name="version">v1.0.0</property>
+    <property name="copyright" translatable="yes">© 2020, GangjunLee (gangjun.dev)</property>
+    <property name="comments" translatable="yes">A Simple Text Editor application developed with GTK+3</property>
+    <property name="website">https://gangjun.dev</property>
+    <property name="website_label" translatable="yes">Visit Author's Website</property>
+    <property name="authors">GangjunLee &lt;me @gangjun.dev&gt;</property>
+    <property name="logo_icon_name">text-x-generic</property>
+    <property name="license_type">gpl-3-0</property>
+    <signal name="response" handler="on_dlg_about_response" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>
