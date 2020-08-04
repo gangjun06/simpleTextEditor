@@ -1,14 +1,18 @@
 #include <gtk/gtk.h>
+#include <gmodule.h>
+
 
 #ifndef APP_WIDGET_H
 #define APP_WIDGET_H
 
 typedef struct {
-    GtkWidget *w_txtvw_main;            // Pointer to text view object
-    GtkWidget *w_dlg_file_choose;       // Pointer to file chooser dialog box
-    GtkWidget *w_dlg_preferences;       // Pointer to file chooser dialog box
-    GtkTextBuffer *textbuffer_main;     // Pointer to text buffer
-    GtkWidget *w_dlg_about;             // Pointer to about dialog box
+    GtkWidget *window;
+    GtkWidget *w_dlg_file_choose;
+    GtkWidget *w_dlg_preferences;
+    GtkNotebook *w_notebook_main;
+    GList *text_list;
+    int current;
+    GtkWidget *w_dlg_about;
 } app_widgets;
 
 #endif

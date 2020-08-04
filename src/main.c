@@ -1,98 +1,49 @@
 #include <gtk/gtk.h>
 #include "app_widget.h"
+#include "event_handler.h"
 
 int main(int argc, char *argv[])
 {
-    GtkBuilder      *builder; 
-    GtkWidget       *window;
-    app_widgets     *widgets = g_slice_new(app_widgets);
+  GtkBuilder      *builder; 
+  //GtkWidget       *window;
+  app_widgets     *widgets = g_slice_new(app_widgets);
 
-    gtk_init(&argc, &argv);
+  gtk_init(&argc, &argv);
 
-    builder = gtk_builder_new_from_file("glade/main.glade");
-    window = GTK_WIDGET(gtk_builder_get_object(builder, "window_main"));
-    // Get pointers to widgets
-    widgets->w_txtvw_main = GTK_WIDGET(gtk_builder_get_object(builder, "txtvw_main"));
-    widgets->w_dlg_file_choose = GTK_WIDGET(gtk_builder_get_object(builder, "dlg_file_choose"));
-    widgets->textbuffer_main = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "textbuffer_main"));
-    widgets->w_dlg_about = GTK_WIDGET(gtk_builder_get_object(builder, "dlg_about"));
-    widgets->w_dlg_preferences = GTK_WIDGET(gtk_builder_get_object(builder, "dlg_preferences"));
-    
-    gtk_builder_connect_signals(builder, widgets);
+  builder = gtk_builder_new_from_file("glade/main.glade");
+  widgets->window = GTK_WIDGET(gtk_builder_get_object(builder, "window_main"));
 
-    g_object_unref(builder);
+  widgets->w_dlg_file_choose = GTK_WIDGET(gtk_builder_get_object(builder, "dlg_file_choose"));
+  widgets->w_dlg_about = GTK_WIDGET(gtk_builder_get_object(builder, "dlg_about"));
+  widgets->w_dlg_preferences = GTK_WIDGET(gtk_builder_get_object(builder, "dlg_preferences"));
+  widgets->w_notebook_main = GTK_NOTEBOOK(gtk_notebook_new());
+  gtk_box_pack_end(GTK_BOX(gtk_builder_get_object(builder, "main_gtkbox")), GTK_WIDGET(widgets->w_notebook_main), TRUE, TRUE, 0);
 
-    gtk_widget_show(window);
-    gtk_main();
-    g_slice_free(app_widgets, widgets);
+  GtkWidget *ScrolledWidget = gtk_scrolled_window_new(NULL, NULL);
+  GtkWidget *TextWidget = gtk_text_view_new();
+  GtkWidget *label = gtk_label_new("Welcome");
+  gtk_container_add(GTK_CONTAINER(ScrolledWidget), TextWidget);
+  gtk_notebook_append_page(widgets->w_notebook_main, ScrolledWidget, label);
 
-    return 0;
+
+  gtk_builder_connect_signals(builder, widgets);
+
+  g_object_unref(builder);
+
+
+
+  gtk_widget_show(widgets->window);
+  gtk_widget_show_all(widgets->window);
+  gtk_main();
+  g_slice_free(app_widgets, widgets);
+  g_free(label);
+  g_free(ScrolledWidget);
+  g_free(TextWidget);
+
+  return 0;
 }
 
-// File --> Open
-void on_menuitem_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
-{
-    gchar *file_name = NULL;        // Name of file to open from dialog box
-    gchar *file_contents = NULL;    // For reading contents of file
-    gboolean file_success = FALSE;  // File read status
-    
-    // Show the "Open Text File" dialog box
-    gtk_widget_show(app_wdgts->w_dlg_file_choose);
-    
-    // Check return value from Open Text File dialog box to see if user clicked the Open button
-    if (gtk_dialog_run(GTK_DIALOG (app_wdgts->w_dlg_file_choose)) == GTK_RESPONSE_OK) {
-        // Get the file name from the dialog box
-        file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(app_wdgts->w_dlg_file_choose));
-        if (file_name != NULL) {
-            // Copy the contents of the file to dynamically allocated memory
-            file_success = g_file_get_contents(file_name, &file_contents, NULL, NULL);
-            if (file_success) {
-                // Put the contents of the file into the GtkTextBuffer
-                gtk_text_buffer_set_text(app_wdgts->textbuffer_main, file_contents, -1);
-            }
-            g_free(file_contents);
-        }
-        g_free(file_name);
-    }
-
-    // Finished with the "Open Text File" dialog box, so hide it
-    gtk_widget_hide(app_wdgts->w_dlg_file_choose);
-}
-
-// File --> Close
-void on_menuitem_close_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
-{
-    // Clear the text from window "Close the file"
-    gtk_text_buffer_set_text(app_wdgts->textbuffer_main, "", -1);
-}
-
-// File --> Quit
-void on_menuitem_quit_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
-{
-    gtk_main_quit();
-}
-
-// Help --> About
-void on_menuitem_about_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
-{
-    gtk_widget_show(app_wdgts->w_dlg_about);
-    gtk_dialog_run(GTK_DIALOG (app_wdgts->w_dlg_about));
-    gtk_widget_hide(app_wdgts->w_dlg_about);
-}
-
-// Edit --> Preferences
-void on_menuitem_preferences_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
-{
-    gtk_widget_show(app_wdgts->w_dlg_preferences);
-    if(gtk_dialog_run(GTK_DIALOG (app_wdgts->w_dlg_preferences)) == GTK_RESPONSE_OK){
-      g_print("OK!");
-    }
-
-    gtk_widget_hide(app_wdgts->w_dlg_preferences);
-}
-
-// called when window is closed
 void on_window_main_destroy()
 {
-    gtk_main_quit();
+  gtk_main_quit();
 }
