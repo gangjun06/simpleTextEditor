@@ -1,12 +1,5 @@
 #include <gtk/gtk.h>
-
-typedef struct {
-    GtkWidget *w_txtvw_main;            // Pointer to text view object
-    GtkWidget *w_dlg_file_choose;       // Pointer to file chooser dialog box
-    GtkWidget *w_dlg_preferences;       // Pointer to file chooser dialog box
-    GtkTextBuffer *textbuffer_main;     // Pointer to text buffer
-    GtkWidget *w_dlg_about;             // Pointer to about dialog box
-} app_widgets;
+#include "app_widget.h"
 
 int main(int argc, char *argv[])
 {
@@ -83,6 +76,8 @@ void on_menuitem_quit_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 void on_menuitem_about_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 {
     gtk_widget_show(app_wdgts->w_dlg_about);
+    gtk_dialog_run(GTK_DIALOG (app_wdgts->w_dlg_about));
+    gtk_widget_hide(app_wdgts->w_dlg_about);
 }
 
 // Edit --> Preferences
@@ -94,12 +89,6 @@ void on_menuitem_preferences_activate(GtkMenuItem *menuitem, app_widgets *app_wd
     }
 
     gtk_widget_hide(app_wdgts->w_dlg_preferences);
-}
-
-// About dialog box Close button
-void on_dlg_about_response(GtkDialog *dialog, gint response_id, app_widgets *app_wdgts)
-{
-    gtk_widget_hide(app_wdgts->w_dlg_about);
 }
 
 // called when window is closed
