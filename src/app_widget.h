@@ -9,6 +9,7 @@ typedef struct {
     GtkWidget *window;
     GtkWidget *w_dlg_file_choose;
     GtkWidget *w_dlg_preferences;
+    GtkWidget *w_dlg_save;
     GtkNotebook *w_notebook_main;
     GList *text_list;
     int current;

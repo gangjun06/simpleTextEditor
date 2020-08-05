@@ -31,6 +31,7 @@ void on_menuitem_open_activate(GtkMenuItem *menuitem, app_widgets *widgets) {
         gtk_notebook_append_page(widgets->w_notebook_main, manage->scrolled_window, NULL);
 
         widgets->text_list = g_list_append(widgets->text_list, manage);
+        //gtk_notebook_set_current_page(widgets->w_notebook_main,  g_list_length(widgets->text_list)-1);
 
         gtk_widget_show_all(widgets->window);
       }
@@ -41,6 +42,44 @@ void on_menuitem_open_activate(GtkMenuItem *menuitem, app_widgets *widgets) {
 
   // Finished with the "Open Text File" dialog box, so hide it
   gtk_widget_hide(widgets->w_dlg_file_choose);
+}
+
+// File --> New
+void on_menuitem_new_activate(GtkMenuItem *menuitem, app_widgets *widgets)
+{
+  file_manage *manage = g_slice_new(file_manage); 
+  manage->file_path = NULL;
+  manage->scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+  manage->text_buffer = gtk_text_buffer_new(NULL);
+  manage->text_view = gtk_text_view_new_with_buffer(manage->text_buffer);
+  gtk_container_add(GTK_CONTAINER(manage->scrolled_window), manage->text_view);
+  gtk_notebook_append_page(widgets->w_notebook_main, manage->scrolled_window, NULL);
+
+  widgets->text_list = g_list_append(widgets->text_list, manage);
+  //gtk_notebook_set_current_page(widgets->w_notebook_main,  g_list_length(widgets->text_list)-1);
+
+  gtk_widget_show_all(widgets->window);
+}
+
+// File --> Save
+void on_menuitem_save_activate(GtkMenuItem *menuitem, app_widgets *widgets)
+{
+  gint current =  gtk_notebook_get_current_page(GTK_NOTEBOOK(widgets->w_notebook_main));
+  file_manage *manage;
+  gchar *text;
+  gboolean file_success;
+  GtkTextIter start, end;
+  manage = g_list_nth_data(widgets->text_list, current);
+  gtk_text_buffer_get_bounds(manage->text_buffer, &start, &end);
+  text = gtk_text_buffer_get_text(manage->text_buffer, &start, &end, FALSE);
+  if(manage->file_path==NULL){
+    g_print("save_as\n");
+    return;
+  }
+  file_success = g_file_set_contents(manage->file_path->str, text, -1, NULL);
+  if(!file_success){
+    g_print("Error");
+  }
 }
 
 // File --> Close

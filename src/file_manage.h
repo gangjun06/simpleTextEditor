@@ -6,7 +6,6 @@
 typedef struct {
   GString *file_name;
   GString *file_path;
-  GtkTextBuffer *textbuffer;
   GtkWidget *scrolled_window;
   GtkWidget *label;
   GtkWidget *text_view;
