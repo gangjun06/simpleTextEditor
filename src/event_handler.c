@@ -6,7 +6,7 @@
 
 // File --> Open
 void on_menuitem_open_activate(GtkMenuItem *menuitem, app_widgets *widgets) {
-  gchar *file_name = NULL;        // Name of file to open from dialog box
+  gchar *file_path = NULL;        // Name of file to open from dialog box
   gchar *file_contents = NULL;    // For reading contents of file
   gboolean file_success = FALSE;  // File read status
 
@@ -16,13 +16,13 @@ void on_menuitem_open_activate(GtkMenuItem *menuitem, app_widgets *widgets) {
   // Check return value from Open Text File dialog box to see if user clicked the Open button
   if (gtk_dialog_run(GTK_DIALOG (widgets->w_dlg_file_choose)) == GTK_RESPONSE_OK) {
     // Get the file name from the dialog box
-    file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(widgets->w_dlg_file_choose));
-    if (file_name != NULL) {
+    file_path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(widgets->w_dlg_file_choose));
+    if (file_path != NULL) {
       // Copy the contents of the file to dynamically allocated memory
-      file_success = g_file_get_contents(file_name, &file_contents, NULL, NULL);
+      file_success = g_file_get_contents(file_path, &file_contents, NULL, NULL);
       if (file_success) {
         file_manage *manage = g_slice_new(file_manage); 
-        manage->file_path = g_string_new(file_name);
+        manage->file_path = g_string_new(file_path);
         manage->scrolled_window = gtk_scrolled_window_new(NULL, NULL);
         manage->text_buffer = gtk_text_buffer_new(NULL);
         gtk_text_buffer_set_text(manage->text_buffer, file_contents, -1);
@@ -35,7 +35,7 @@ void on_menuitem_open_activate(GtkMenuItem *menuitem, app_widgets *widgets) {
 
         gtk_widget_show_all(widgets->window);
       }
-      g_free(file_name);
+      g_free(file_path);
       g_free(file_contents);
     }
   }
@@ -65,21 +65,34 @@ void on_menuitem_new_activate(GtkMenuItem *menuitem, app_widgets *widgets)
 void on_menuitem_save_activate(GtkMenuItem *menuitem, app_widgets *widgets)
 {
   gint current =  gtk_notebook_get_current_page(GTK_NOTEBOOK(widgets->w_notebook_main));
+  if(current == -1) return;
   file_manage *manage;
   gchar *text;
   gboolean file_success;
   GtkTextIter start, end;
+  gchar *file_path = NULL;
   manage = g_list_nth_data(widgets->text_list, current);
   gtk_text_buffer_get_bounds(manage->text_buffer, &start, &end);
   text = gtk_text_buffer_get_text(manage->text_buffer, &start, &end, FALSE);
   if(manage->file_path==NULL){
-    g_print("save_as\n");
-    return;
+    gtk_widget_show(widgets->w_dlg_save);
+    if (gtk_dialog_run(GTK_DIALOG (widgets->w_dlg_save)) == GTK_RESPONSE_OK) {
+      file_path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(widgets->w_dlg_save));
+      file_success = g_file_set_contents(file_path, text, -1, NULL);
+      if(!file_success){
+        g_print("Error");
+      }
+      g_string_printf(manage->file_path, "%s", file_path);
+    }
+    gtk_widget_hide(widgets->w_dlg_save);
+  }else{
+    file_success = g_file_set_contents(manage->file_path->str, text, -1, NULL);
+    if(!file_success){
+      g_print("Error");
+    }
   }
-  file_success = g_file_set_contents(manage->file_path->str, text, -1, NULL);
-  if(!file_success){
-    g_print("Error");
-  }
+  g_free(text);
+  g_free(file_path);
 }
 
 // File --> Close
