@@ -10,6 +10,8 @@ void on_menuitem_new_activate(GtkMenuItem *menuitem, app_widgets *widgets);
 
 void on_menuitem_save_activate(GtkMenuItem *menuitem, app_widgets *widgets);
 
+void on_menuitem_saveas_activate(GtkMenuItem *menuitem, app_widgets *widgets);
+
 void on_menuitem_close_activate(GtkMenuItem *menuitem, app_widgets *widgets);
 
 void on_menuitem_quit_activate(GtkMenuItem *menuitem, app_widgets *widgets);

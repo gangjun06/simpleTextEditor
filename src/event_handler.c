@@ -79,18 +79,41 @@ void on_menuitem_save_activate(GtkMenuItem *menuitem, app_widgets *widgets)
     if (gtk_dialog_run(GTK_DIALOG (widgets->w_dlg_save)) == GTK_RESPONSE_OK) {
       file_path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(widgets->w_dlg_save));
       file_success = g_file_set_contents(file_path, text, -1, NULL);
-      if(!file_success){
-        g_print("Error");
-      }
-      g_string_printf(manage->file_path, "%s", file_path);
+      if(!file_success) g_print("Error");
+      manage->file_path = g_string_new(file_path);
     }
     gtk_widget_hide(widgets->w_dlg_save);
   }else{
     file_success = g_file_set_contents(manage->file_path->str, text, -1, NULL);
-    if(!file_success){
-      g_print("Error");
-    }
+    if(!file_success) g_print("Error");
   }
+  g_free(text);
+  g_free(file_path);
+}
+
+// File --> SaveAs
+void on_menuitem_saveas_activate(GtkMenuItem *menuitem, app_widgets *widgets){
+  gint current =  gtk_notebook_get_current_page(GTK_NOTEBOOK(widgets->w_notebook_main));
+  if(current == -1) return;
+  file_manage *manage;
+  gchar *text;
+  gboolean file_success;
+  GtkTextIter start, end;
+  gchar *file_path = NULL;
+  manage = g_list_nth_data(widgets->text_list, current);
+  gtk_text_buffer_get_bounds(manage->text_buffer, &start, &end);
+  text = gtk_text_buffer_get_text(manage->text_buffer, &start, &end, FALSE);
+  gtk_widget_show(widgets->w_dlg_save);
+  if (gtk_dialog_run(GTK_DIALOG (widgets->w_dlg_save)) == GTK_RESPONSE_OK) {
+    file_path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(widgets->w_dlg_save));
+    file_success = g_file_set_contents(file_path, text, -1, NULL);
+    if(!file_success) g_print("Error");
+    g_string_printf(manage->file_path, "%s", file_path);
+  }
+  gtk_widget_hide(widgets->w_dlg_save);
+  manage = g_list_nth_data(widgets->text_list, current);
+  gtk_text_buffer_get_bounds(manage->text_buffer, &start, &end);
+  text = gtk_text_buffer_get_text(manage->text_buffer, &start, &end, FALSE);
   g_free(text);
   g_free(file_path);
 }
