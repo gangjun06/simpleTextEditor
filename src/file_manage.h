@@ -4,9 +4,13 @@
 #define FILE_MANAGE_H
 
 typedef struct {
-  gchar *file_name;
-  gchar *file_path;
+  GString *file_name;
+  GString *file_path;
   GtkTextBuffer *textbuffer;
+  GtkWidget *scrolled_window;
+  GtkWidget *label;
+  GtkWidget *text_view;
+  GtkTextBuffer *text_buffer;
 } file_manage;
 
 #endif

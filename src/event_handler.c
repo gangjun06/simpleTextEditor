@@ -1,6 +1,8 @@
 #include <gtk/gtk.h>
+#include <gmodule.h>
 #include "event_handler.h"
 #include "app_widget.h"
+#include "file_manage.h"
 
 // File --> Open
 void on_menuitem_open_activate(GtkMenuItem *menuitem, app_widgets *widgets) {
@@ -19,18 +21,22 @@ void on_menuitem_open_activate(GtkMenuItem *menuitem, app_widgets *widgets) {
       // Copy the contents of the file to dynamically allocated memory
       file_success = g_file_get_contents(file_name, &file_contents, NULL, NULL);
       if (file_success) {
-        GtkWidget *scrolledWidget = gtk_scrolled_window_new(NULL, NULL);
-        GtkTextBuffer *buffer = gtk_text_buffer_new(NULL);
-        gtk_text_buffer_set_text(buffer, file_contents, -1);
-        GtkWidget *textWidget = gtk_text_view_new_with_buffer(buffer);
-        gtk_container_add(GTK_CONTAINER(scrolledWidget), textWidget);
-        gtk_notebook_append_page(widgets->w_notebook_main, scrolledWidget, NULL);
+        file_manage *manage = g_slice_new(file_manage); 
+        manage->file_path = g_string_new(file_name);
+        manage->scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+        manage->text_buffer = gtk_text_buffer_new(NULL);
+        gtk_text_buffer_set_text(manage->text_buffer, file_contents, -1);
+        manage->text_view = gtk_text_view_new_with_buffer(manage->text_buffer);
+        gtk_container_add(GTK_CONTAINER(manage->scrolled_window), manage->text_view);
+        gtk_notebook_append_page(widgets->w_notebook_main, manage->scrolled_window, NULL);
+
+        widgets->text_list = g_list_append(widgets->text_list, manage);
 
         gtk_widget_show_all(widgets->window);
       }
+      g_free(file_name);
       g_free(file_contents);
     }
-    g_free(file_name);
   }
 
   // Finished with the "Open Text File" dialog box, so hide it
@@ -38,36 +44,38 @@ void on_menuitem_open_activate(GtkMenuItem *menuitem, app_widgets *widgets) {
 }
 
 // File --> Close
-void on_menuitem_close_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
+void on_menuitem_close_activate(GtkMenuItem *menuitem, app_widgets *widgets)
 {
-  // Clear the text from window "Close the file"
-  //gtk_text_buffer_set_text(app_wdgts->textbuffer_main, "", -1);
-  g_print("success_close");
+  gint current =  gtk_notebook_get_current_page(GTK_NOTEBOOK(widgets->w_notebook_main));
+  file_manage *manage;
+  manage = g_list_nth_data(widgets->text_list, current);
+  widgets->text_list = g_list_remove(widgets->text_list, manage);
+  gtk_notebook_remove_page(GTK_NOTEBOOK(widgets->w_notebook_main), current);
+  g_slice_free(file_manage, manage);
 }
 
 // File --> Quit
-void on_menuitem_quit_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
+void on_menuitem_quit_activate(GtkMenuItem *menuitem, app_widgets *widgets)
 {
   gtk_main_quit();
 }
 
 // Help --> About
-void on_menuitem_about_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
+void on_menuitem_about_activate(GtkMenuItem *menuitem, app_widgets *widgets)
 {
-  gtk_widget_show(app_wdgts->w_dlg_about);
-  gtk_dialog_run(GTK_DIALOG (app_wdgts->w_dlg_about));
-  gtk_widget_hide(app_wdgts->w_dlg_about);
+  gtk_widget_show(widgets->w_dlg_about);
+  gtk_dialog_run(GTK_DIALOG (widgets->w_dlg_about));
+  gtk_widget_hide(widgets->w_dlg_about);
 }
 
 // Edit --> Preferences
-void on_menuitem_preferences_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
+void on_menuitem_preferences_activate(GtkMenuItem *menuitem, app_widgets *widgets)
 {
-  gtk_widget_show(app_wdgts->w_dlg_preferences);
-  if(gtk_dialog_run(GTK_DIALOG (app_wdgts->w_dlg_preferences)) == GTK_RESPONSE_OK){
+  gtk_widget_show(widgets->w_dlg_preferences);
+  if(gtk_dialog_run(GTK_DIALOG (widgets->w_dlg_preferences)) == GTK_RESPONSE_OK){
     g_print("OK!");
   }
 
-  gtk_widget_hide(app_wdgts->w_dlg_preferences);
+  gtk_widget_hide(widgets->w_dlg_preferences);
 }
-
 
